@@ -62,4 +62,64 @@ class ProductRepositoryTest {
         assertEquals(product2.getProductId(), savedProduct.getProductId());
         assertFalse(productIterator.hasNext());
     }
+
+    @Test
+    void testEditProduct_Success() {
+        Product product = new Product();
+        product.setProductName("Sampo Lama");
+        product.setProductQuantity(10);
+
+        Product savedProduct = productRepository.create(product);
+        String productId = savedProduct.getProductId();
+
+        Product editedProduct = new Product();
+        editedProduct.setProductId(productId);
+        editedProduct.setProductName("Sampo Baru");
+        editedProduct.setProductQuantity(20);
+
+        productRepository.edit(editedProduct);
+
+        Product result = productRepository.findProductById(productId);
+        assertNotNull(result);
+        assertEquals("Sampo Baru", result.getProductName());
+        assertEquals(20, result.getProductQuantity());
+    }
+
+    @Test
+    void testEditProduct_Failed_ProductNotFound() {
+        Product editedProduct = new Product();
+        editedProduct.setProductId("ID-TIDAK-ADA");
+        editedProduct.setProductName("Produk Palsu");
+        editedProduct.setProductQuantity(999);
+
+        productRepository.edit(editedProduct);
+
+        Iterator<Product> iterator = productRepository.findAll();
+        assertFalse(iterator.hasNext());
+    }
+
+    @Test
+    void testDeleteProduct_Success() {
+        Product product = new Product();
+        product.setProductName("Produk Dihapus");
+        product.setProductQuantity(5);
+
+        Product savedProduct = productRepository.create(product);
+        String productId = savedProduct.getProductId();
+
+        productRepository.delete(productId);
+
+        Product result = productRepository.findProductById(productId);
+        assertNull(result);
+    }
+
+    @Test
+    void testDeleteProduct_Failed_ProductNotFound() {
+        productRepository.delete("ID-TIDAK-PERNAH-ADA");
+
+        Iterator<Product> iterator = productRepository.findAll();
+        assertFalse(iterator.hasNext());
+    }
+
+
 }
